@@ -1,0 +1,3 @@
+# m h  dom mon dow   command 
+0 22 * * *  root if [ `ps -ef | grep "create-db-snapshot" | grep -v grep | wc -l` -eq 0 ]; then date >> /var/log/ebs-snapshots.log; /home/ubuntu/create-snapshot.sh >> /var/log/ebs-snapshots.log ; fi
+

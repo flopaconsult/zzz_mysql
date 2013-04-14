@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#TODO: this script is not intended for production use: AWS accesskeys and database password are NOT PROTECTED!!!
+MYACCESSKEY=<%= @aws_access_key %>
+MYSECRETKEY=<%= @aws_secret_access_key %>
+EC2_CERT=/home/ubuntu/_cert-tu-snapshot.pem
+EC2_PRIVATE_KEY=/home/ubuntu/_pk-tu-snapshot.pem
+instanceid=`curl -s http://169.254.169.254/latest/meta-data/instance-id`
+availability_zone=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
+length=${#availability_zone}
+let newlength=$length-1
+region=`echo $availability_zone | cut -c -$newlength`
+device="<%= node['mysql']['device'] %>"
+device_letters=`echo $device | cut -c 6-`
+filesystem="<%= node['mysql']['ec2_mountpoint'] %>"
+#mysqlsocket="<%= node['mysql']['data_dir'] %>/mysql.sock"
+mysqlsocket="/var/run/mysqld/mysqld.sock"
+snaplabel="<%= node['environment']['name'] %>-<%= node['ec2tag']['name'] %>-$device_letters-"
+#this is only working with the aws (perl) tools
+#volumeid=`ec2-describe-volumes --region $region | grep "instanceId=$instanceid" | grep "device=$device" | cut -d"|" -f2`
+volumeid=`ec2-describe-volumes --region $region --private-key $EC2_PRIVATE_KEY --cert $EC2_CERT | grep $instanceid | grep "$device" | cut -f2`
+user=root
+#password=<%= node['mysql']['server_root_password'] %>
+password=<%= @db_password %>
+ec2-consistent-snapshot --aws-access-key-id $MYACCESSKEY --aws-secret-access-key $MYSECRETKEY --region $region --freeze-filesystem $filesystem --mysql --mysql-host localhost --mysql-socket $mysqlsocket --mysql-username $user --mysql-password $password --mysql-master-status-file $filesystem/master_status --description $snaplabel`date +"%Y-%m-%d-%H:%M:%S"` $volumeid
+/usr/bin/aws dsnap --region $region | grep $volumeid | sort -r -k 5  | sed 1,7d | awk '{print "Deleting snapshot: " $2 " Dated:" $8};system("/usr/bin/aws delsnap --region $region " $2 )'
+
+

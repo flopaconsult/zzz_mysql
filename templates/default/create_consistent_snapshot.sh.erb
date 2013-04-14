@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#Set the AWS related information
+ACCESS_KEY=<%= @aws_access_key %>
+SECRET_KEY=<%= @aws_secret_access_key %>
+
+EC2_HOME="/opt/EC2TOOLS"
+EC2_PRIVATE_KEY="<%= @private_key %>"
+EC2_CERT="<%= @cert %>"
+
+availability_zone=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
+length=${#availability_zone}
+let newlength=$length-1
+region=`echo $availability_zone | cut -c -$newlength`
+filesystem="<%= @mount_point %>"
+mysqlsocket="/var/run/mysqld/mysqld.sock"
+user=root
+password=<%= @db_password %>
+
+sudo <%= @consistent_snapshot %> \
+--region ${region} \
+--aws-access-key-id ${ACCESS_KEY} \
+--aws-secret-access-key ${SECRET_KEY} \
+--description "RAID snapshot $(date +'%Y-%m-%d %H:%M:%S') $(date +%s%N | cut -b1-13)" \
+--xfs-filesystem ${filesystem} \
+--mysql-master-status-file $filesystem/master_status \
+--mysql-password $password \
+--mysql-username $user \
+--mysql-socket $mysqlsocket \
+--freeze-filesystem $filesystem \
+--mysql \
+--mysql-host localhost \
+$(ec2-describe-volumes --region ${region} --private-key $EC2_PRIVATE_KEY --cert $EC2_CERT | grep $(wget http://169.254.169.254/latest/meta-data/instance-id -O - -q) | egrep '/dev/(sd)[b-z][1-9]' | awk '{printf "%s ", $2}')
+
+
