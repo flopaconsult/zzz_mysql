@@ -7,24 +7,24 @@
 # All rights reserved - Do Not Redistribute
 #
 
-include_recipe "mysql::install_fog"
+include_recipe "zzz_mysql::install_fog"
 if node['mysql']['server_type'] == "master" then
     if node['aws'] == nil ||  node['aws']['ebs_volume'] == nil || node['aws']['ebs_volume']['mysql_data_volume'] == nil || node['aws']['ebs_volume']['mysql_data_volume']['volume_id'] == nil then	
-	include_recipe "mysql::create_ebs_volume"
+	include_recipe "zzz_mysql::create_ebs_volume"
     end
 end
 
-include_recipe "mysql::server"
-include_recipe "mysql::install_scripts"
-include_recipe "mysql::db_backup"
-include_recipe "mysql::configurations"
+include_recipe "zzz_mysql::server"
+include_recipe "zzz_mysql::install_scripts"
+include_recipe "zzz_mysql::db_backup"
+include_recipe "zzz_mysql::configurations"
 if node['mysql']['server_type'] == "slave" then
         if node['mysql']['snapshot_id'] != "" then
-                include_recipe "mysql::create_ebs_volume"
+                include_recipe "zzz_mysql::create_ebs_volume"
         end
 end
 
-include_recipe "mysql::server_ec2"
+include_recipe "zzz_mysql::server_ec2"
 #include_recipe "mysql::db_backup"
 #include_recipe "mysql::test"
 

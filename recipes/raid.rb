@@ -30,7 +30,7 @@ e = package "ruby-dev"  do
 end
 e.run_action(:install)
 
-include_recipe "mysql::install_fog"
+include_recipe "zzz_mysql::install_fog"
 
 require 'rubygems'
 Gem.clear_paths
