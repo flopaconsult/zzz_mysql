@@ -16,7 +16,7 @@ end
 depends "openssl"
 depends "aws"
 depends "xfs"
-depends "mysql"
+depends "mysql" , '= 1.2.4'
 
 attribute "mysql/server_root_password",
   :display_name => "MySQL Server Root Password",
