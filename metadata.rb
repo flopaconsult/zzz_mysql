@@ -13,6 +13,7 @@ version           "1.2.4"
   supports os
 end
 
+depends "apt"
 depends "openssl"
 depends "aws"
 depends "xfs"
