@@ -13,8 +13,6 @@ version           "1.2.4"
   supports os
 end
 
-#depends "mysql" , '= 1.2.4'
-
 %w{ apt openssl mysql aws xfs}.each do |cookbook|
   depends cookbook
 end
