@@ -13,11 +13,12 @@ version           "1.2.4"
   supports os
 end
 
-depends "apt"
-depends "openssl"
-depends "aws"
-depends "xfs"
 depends "mysql" , '= 1.2.4'
+
+%w{ apt openssl aws xfs}.each do |cookbook|
+  depends cookbook
+end
+
 
 attribute "mysql/server_root_password",
   :display_name => "MySQL Server Root Password",
