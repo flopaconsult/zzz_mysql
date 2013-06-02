@@ -70,7 +70,8 @@ end
 # this search is necessary to search for all mysql machines and get the master ip, host and password
 # these data will be necessary for ./MakeMaster.rb script because the script must connect to the master machine 
 if node['mysql']['server_type'] == "slave" then
-  search(:node, "roles:#{node['mysql']['role']} AND app_environment:#{node['app_environment']}", nil, 0, 1) do |n|
+  #search(:node, "roles:#{node['mysql']['role']} AND app_environment:#{node['app_environment']}", nil, 0, 1) do |n|
+  search(:node, "roles:#{node['mysql']['role']} ", nil, 0, 1) do |n|
     if n['mysql'] != nil then
       if n['mysql']['server_type'] == "master" then
        script "check_master" do
